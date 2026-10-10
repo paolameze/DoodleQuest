@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoodleQuest - Interactive App</title>
+    <!-- Include Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif, system-ui; }
+        body { background-color: #fff0f3; display: flex; min-height: 100vh; }
+
+        /* Left Sidebar */
+        aside.sidebar {
+            width: 260px; background-color: #ffb6c1; border-right: 2px solid #ff9ebb;
+            padding: 30px 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0;
+        }
+        .logo { font-size: 28px; font-weight: bold; color: white; text-shadow: 2px 2px 0px #ff7597; margin-bottom: 40px; text-align: center; }
+        .nav-menu { display: flex; flex-direction: column; gap: 15px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 15px; padding: 12px 18px; background: transparent;
+            border: none; border-radius: 12px; font-size: 18px; font-weight: 600; color: white; cursor: pointer; transition: background 0.2s; text-align: left;
+        }
+        .nav-item:hover, .nav-item.active { background-color: rgba(255, 255, 255, 0.4); color: #d1496b; }
+
+        /* Main Content Container */
+        main.main-content { margin-left: 260px; flex: 1; display: flex; justify-content: center; padding: 40px 20px; }
+        .content-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 25px; }
+
+        .view-section { display: none; flex-direction: column; gap: 20px; }
+        .view-section.active { display: flex; }
+
+        /* Ticket Card Styling */
+        .ticket-card { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(255, 150, 175, 0.2); overflow: hidden; border: 2px solid #ffd1dc; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f9eeef; }
+        .user-info { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #d1496b; }
+        .avatar-placeholder { width: 35px; height: 35px; background-color: #ffb6c1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+        .difficulty-badge { font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; background-color: #ffe5ea; color: #d1496b; }
+        .card-body { padding: 15px; color: #555; font-size: 14px; line-height: 1.5; }
+        .card-image-box img { width: 100%; max-height: 300px; object-fit: cover; border-top: 1px solid #f9eeef; border-bottom: 1px solid #f9eeef; }
+        .card-actions { padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-join { background-color: #ff7597; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; }
+        .btn-join:hover { background-color: #e05e7e; }
+
+        /* Create Form Styling */
+        .create-form { background: white; padding: 25px; border-radius: 16px; border: 2px solid #ffd1dc; display: flex; flex-direction: column; gap: 15px; }
+        .create-form h2 { color: #d1496b; margin-bottom: 5px; }
+        .create-form label { font-size: 14px; font-weight: 600; color: #666; }
+        .create-form input, .create-form textarea, .create-form select {
+            width: 100%; padding: 10px; border: 1px solid #ffd1dc; border-radius: 8px; font-size: 14px; outline: none; background: #fff8fa;
+        }
+        .create-form button { background-color: #ff7597; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+    </style>
+</head>
+<body>
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+        <h1 class="logo">DoodleQuest</h1>
+        <div class="nav-menu">
+            <button class="nav-item active" onclick="switchView('feed')">🏠 Feed</button>
+            <button class="nav-item" onclick="switchView('tickets')">✏️ Tickets</button>
+            <button class="nav-item" onclick="switchView('create')">➕ Create</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            
+            <!-- VIEW 1: FEED -->
+            <div id="feedView" class="view-section active">
+                <h2 style="color: #d1496b;">Live Community Feed</h2>
+                <div id="ticketsFeed">
+                    <p style="color: #888; text-align: center;">Loading tickets from database...</p>
+                </div>
+            </div>
+
+            <!-- VIEW 2: MY TICKETS / IN PROGRESS -->
+            <div id="ticketsView" class="view-section">
+                <h2 style="color: #d1496b;">Tickets In Progress</h2>
+                <p style="color: #666; font-size: 14px;">Here are tickets you've joined or created to submit drawings.</p>
+                <div id="joinedTicketsFeed">
+                    <p style="color: #888;">No active tickets joined yet.</p>
+                </div>
+            </div>
+
+            <!-- VIEW 3: CREATE TICKET FORM -->
+            <div id="createView" class="view-section">
+                <div class="create-form">
+                    <h2>Create Drawing Ticket</h2>
+                    <p style="font-size: 13px; color: #777;">Submit a drawing prompt for community artists!</p>
+                    
+                    <label>Your Username</label>
+                    <input type="text" id="creatorName" placeholder="@lumina" value="@lumina">
+
+                    <label>Title / Summary</label>
+                    <input type="text" id="ticketTitle" placeholder="e.g. Cat wizard sketch">
+
+                    <label>Description Request</label>
+                    <textarea id="ticketDesc" rows="3" placeholder="Describe what you want drawn..."></textarea>
+
+                    <label>Difficulty</label>
+                    <select id="ticketDifficulty">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+
+                    <label>Reference Image File</label>
+                    <input type="file" id="ticketFile" accept="image/*">
+
+                    <button onclick="publishTicket()">Publish Ticket 🚀</button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- SUPABASE CONNECTION & INTERACTIVE SCRIPT -->
+    <script>
+        // REPLACE THESE WITH YOUR ACTUAL SUPABASE KEYS FROM YOUR PROJECT SETTINGS > API
+        const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Switch Tabs Logic
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            if (viewName === 'feed') {
+                document.getElementById('feedView').classList.add('active');
+                event.currentTarget.classList.add('active');
+                fetchTickets();
+            } else if (viewName === 'tickets') {
+                document.getElementById('ticketsView').classList.add('active');
+                event.currentTarget.classList.add('active');
+            } else if (viewName === 'create') {
+                document.getElementById('createView').classList.add('active');
+                event.currentTarget.classList.add('active');
+            }
+        }
+
+        // 1. Fetch Tickets from Supabase Database
+        async function fetchTickets() {
+            const feedContainer = document.getElementById('ticketsFeed');
+            feedContainer.innerHTML = '<p style="color: #888; text-align: center;">Loading...</p>';
+
+            let { data: tickets, error } = await supabase
+                .from('tickets')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                feedContainer.innerHTML = `<p style="color: red; text-align: center;">Error loading database: ${error.message}</p>`;
+                return;
+            }
+
+            if (tickets.length === 0) {
+                feedContainer.innerHTML = '<p style="color: #888; text-align: center;">No tickets found. Create one using the sidebar!</p>';
+                return;
+            }
+
+            feedContainer.innerHTML = '';
+            tickets.forEach(ticket => {
+                const card = document.createElement('div');
+                card.className = 'ticket-card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="user-info">
+                            <div class="avatar-placeholder">🎨</div>
+                            <span>${ticket.creator_name || '@user'}</span>
+                        </div>
+                        <span class="difficulty-badge">${ticket.difficulty || 'Easy'}</span>
+                    </div>
+                    <div class="card-body">
+                        <h3 style="font-size: 15px; color: #333; margin-bottom: 5px;">${ticket.title}</h3>
+                        <p>${ticket.description}</p>
+                    </div>
+                    ${ticket.reference_image_url ? `<div class="card-image-box"><img src="${ticket.reference_image_url}" /></div>` : ''}
+                    <div class="card-actions">
+                        <span style="font-size: 13px; color: #888;">Open Request</span>
+                        <button class="btn-join" onclick="alert('Joined ticket: ${ticket.title}!')">Join Ticket ✏️</button>
+                    </div>
+                `;
+                feedContainer.appendChild(card);
+            });
+        }
+
+        // 2. Publish Ticket and Upload Image to Supabase Storage
+        async function publishTicket() {
+            const creatorName = document.getElementById('creatorName').value;
+            const title = document.getElementById('ticketTitle').value;
+            const description = document.getElementById('ticketDesc').value;
+            const difficulty = document.getElementById('ticketDifficulty').value;
+            const fileInput = document.getElementById('imageFile').files[0];
+
+            if (!title || !description) {
+                alert('Please fill out the title and description!');
+                return;
+            }
+
+            let imageUrl = '';
+
+            // If an image file is selected, upload it to Supabase Storage bucket named 'drawings'
+            if (fileInput) {
+                const fileName = `${Date.now()}_${fileInput.name}`;
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('drawings')
+                    .upload(fileName, fileInput);
+
+                if (uploadError) {
+                    alert('Error uploading image: ' + uploadError.message);
+                    return;
+                }
+
+                const { data: publicUrlData } = supabase.storage
+                    .from('drawings')
+                    .getPublicUrl(fileName);
+
+                imageUrl = publicUrlData.publicUrl;
+            }
+
+            // Insert the ticket data into the 'tickets' table
+            const { error: insertError } = await supabase
+                .from('tickets')
+                .insert([{ creator_name: creatorName, title, description, difficulty, reference_image_url: imageUrl }]);
+
+            if (insertError) {
+                alert('Error saving ticket: ' + insertError.message);
+            } else {
+                alert('Ticket published live to Supabase successfully! 🎉');
+                document.getElementById('ticketTitle').value = '';
+                document.getElementById('ticketDesc').value = '';
+                document.getElementById('imageFile').value = '';
+                switchView('feed');
+            }
+        }
+
+        // Load feed on initial page load
+        fetchTickets();
+    </script>
+</body>
+</html>
