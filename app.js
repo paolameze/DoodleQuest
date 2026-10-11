@@ -2,7 +2,8 @@
 const SUPABASE_URL = 'https://agvjkooyrdvyllwwcnqr.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFndmprb295cmR2eWxsd3djbnFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTc1NTQsImV4cCI6MjEwNzIzMzU1NH0.RSxj5Yzxt0uhZtWsmLga8DWtlY5KlSUv0f-s5X6pmdY';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Renamed to supabaseClient to avoid colliding with the global 'supabase' object
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // 2. PAGE LOAD LISTENER (Attaches clicks when the page opens)
 document.addEventListener('DOMContentLoaded', () => {
@@ -44,7 +45,7 @@ async function fetchTickets() {
     const feedContainer = document.getElementById('ticketsFeed');
     feedContainer.innerHTML = '<p style="color: #888; text-align: center;">Loading...</p>';
 
-    let { data: tickets, error } = await supabase
+    let { data: tickets, error } = await supabaseClient
         .from('tickets')
         .select('*')
         .order('created_at', { ascending: false });
@@ -89,7 +90,7 @@ async function fetchMyTickets() {
     const joinedContainer = document.getElementById('joinedTicketsFeed');
     joinedContainer.innerHTML = '<p style="color: #888;">Loading your tickets...</p>';
 
-    let { data: myTickets, error } = await supabase
+    let { data: myTickets, error } = await supabaseClient
         .from('tickets')
         .select('*')
         .eq('creator_name', document.getElementById('creatorName').value);
@@ -135,7 +136,7 @@ async function publishTicket() {
 
     if (fileInput) {
         const fileName = `${Date.now()}_${fileInput.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
             .from('drawings')
             .upload(fileName, fileInput);
 
@@ -144,14 +145,14 @@ async function publishTicket() {
             return;
         }
 
-        const { data: publicUrlData } = supabase.storage
+        const { data: publicUrlData } = supabaseClient.storage
             .from('drawings')
             .getPublicUrl(fileName);
 
         imageUrl = publicUrlData.publicUrl;
     }
 
-    const { error: insertError } = await supabase
+    const { error: insertError } = await supabaseClient
         .from('tickets')
         .insert([{ creator_name: creatorName, title, description, difficulty, reference_image_url: imageUrl }]);
 
