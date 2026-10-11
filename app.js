@@ -45,7 +45,6 @@ async function fetchTickets() {
     const feedContainer = document.getElementById('ticketsFeed');
     feedContainer.innerHTML = '<p style="color: #888; text-align: center;">Loading...</p>';
 
-    // 1. Fetch all tickets
     let { data: tickets, error: ticketsError } = await supabaseClient
         .from('tickets')
         .select('*')
@@ -56,7 +55,6 @@ async function fetchTickets() {
         return;
     }
 
-    // 2. Fetch all submissions
     let { data: submissions, error: subError } = await supabaseClient
         .from('submissions')
         .select('*')
@@ -64,7 +62,7 @@ async function fetchTickets() {
 
     if (subError) {
         console.error("Error loading submissions:", subError);
-        submissions = []; // Fallback to empty array if this fails
+        submissions = []; 
     }
 
     if (tickets.length === 0) {
@@ -74,12 +72,9 @@ async function fetchTickets() {
 
     feedContainer.innerHTML = '';
     
-    // 3. Loop through tickets and build the HTML
     tickets.forEach(ticket => {
-        // Find all artwork submitted for this specific ticket
         const ticketSubmissions = submissions.filter(sub => sub.ticket_id === ticket.id);
         
-        // Build a scrollable gallery if there are submissions
         let submissionsHtml = '';
         if (ticketSubmissions.length > 0) {
             submissionsHtml = `
@@ -87,9 +82,11 @@ async function fetchTickets() {
                     <h4 style="font-size: 13px; color: #d1496b; margin-bottom: 10px;">Submitted Artwork (${ticketSubmissions.length}):</h4>
                     <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
                         ${ticketSubmissions.map(sub => `
-                            <div style="min-width: 100px; text-align: center;">
-                                <img src="${sub.artwork_url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #ffd1dc;" alt="Art">
-                                <span style="font-size: 11px; color: #666; display: block; margin-top: 5px;">${sub.artist_name}</span>
+                            <div style="min-width: 100px; text-align: center; background: white; padding: 5px; border-radius: 8px; border: 1px solid #ffd1dc;">
+                                <a href="${sub.artwork_url}" target="_blank">
+                                    <img src="${sub.artwork_url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px;" alt="Art">
+                                </a>
+                                <span style="font-size: 12px; font-weight: bold; color: #d1496b; display: block; margin-top: 5px;">By: ${sub.artist_name}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -103,7 +100,7 @@ async function fetchTickets() {
             <div class="card-header">
                 <div class="user-info">
                     <img src="avatar.png" alt="Avatar" class="avatar-img">
-                    <span>${ticket.creator_name || '@user'}</span>
+                    <span>Requested by: ${ticket.creator_name || 'Anonymous'}</span>
                 </div>
                 <span class="difficulty-badge">${ticket.difficulty || 'Easy'}</span>
             </div>
@@ -113,12 +110,11 @@ async function fetchTickets() {
             </div>
             ${ticket.reference_image_url ? `<div class="card-image-box"><img src="${ticket.reference_image_url}" /></div>` : ''}
             
-            <!-- Insert the submissions gallery here -->
             ${submissionsHtml}
 
             <div class="card-actions">
                 <span style="font-size: 13px; color: #888;">Open Request</span>
-                <button class="btn-join" onclick="openSubmitModal('${ticket.id}')">Submit Art ✏️</button>
+                <button class="btn-join" onclick="openSubmitModal('${ticket.id}')">Join Ticket ✏️</button>
             </div>
         `;
         feedContainer.appendChild(card);
