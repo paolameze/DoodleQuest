@@ -59,7 +59,7 @@
             width: 28px;
             height: 28px;
             object-fit: contain;
-            pointer-events: none; /* Prevents image from blocking clicks */
+            pointer-events: none;
         }
 
         /* Main Content Container - Shifted right to match wider sidebar */
@@ -114,16 +114,16 @@
             <img src="logo.png" alt="DoodleQuest Logo" class="logo-img">
         </div>
         <div class="nav-menu">
-            <button class="nav-item active" id="btn-feed" onclick="switchView('feed')">
+            <button class="nav-item active" id="btn-feed" data-view="feed">
                 <img src="home-icon.png" alt="Feed" class="nav-icon"> Feed
             </button>
-            <button class="nav-item" id="btn-tickets" onclick="switchView('tickets')">
+            <button class="nav-item" id="btn-tickets" data-view="tickets">
                 <img src="tickets-icon.png" alt="Tickets" class="nav-icon"> Tickets
             </button>
-            <button class="nav-item" id="btn-create" onclick="switchView('create')">
+            <button class="nav-item" id="btn-create" data-view="create">
                 <img src="create-icon.png" alt="Create" class="nav-icon"> Create
             </button>
-            <button class="nav-item" id="btn-profile" onclick="switchView('profile')">
+            <button class="nav-item" id="btn-profile" data-view="profile">
                 <img src="profile-icon.png" alt="Profile" class="nav-icon"> Profile
             </button>
         </div>
@@ -212,13 +212,19 @@
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // Attach event listeners to sidebar buttons automatically
+        document.querySelectorAll('.nav-item').forEach(button => {
+            button.addEventListener('click', () => {
+                const viewName = button.getAttribute('data-view');
+                switchView(viewName);
+            });
+        });
+
         // Switch Tabs Logic & Content Loader
         function switchView(viewName) {
-            // Hide all views and remove active class from all buttons
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-            // Activate the selected view
             if (viewName === 'feed') {
                 document.getElementById('feedView').classList.add('active');
                 document.getElementById('btn-feed').classList.add('active');
