@@ -1,4 +1,5 @@
-    //SUPABASE CONNECTION & INTERACTIVE SCRIPT
+document.addEventListener('DOMContentLoaded', () => {
+//SUPABASE CONNECTION & INTERACTIVE SCRIPT
         // REPLACE THESE WITH YOUR ACTUAL SUPABASE KEYS FROM YOUR PROJECT SETTINGS > API
         const SUPABASE_URL = 'https://agvjkooyrdvyllwwcnqr.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFndmprb295cmR2eWxsd3djbnFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE2NTc1NTQsImV4cCI6MjEwNzIzMzU1NH0.RSxj5Yzxt0uhZtWsmLga8DWtlY5KlSUv0f-s5X6pmdY';
@@ -34,6 +35,7 @@
                 document.getElementById('btn-profile').classList.add('active');
             }
         }
+    }
 
         // 1. Fetch Tickets from Supabase Database
         async function fetchTickets() {
