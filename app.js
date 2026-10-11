@@ -45,14 +45,26 @@ async function fetchTickets() {
     const feedContainer = document.getElementById('ticketsFeed');
     feedContainer.innerHTML = '<p style="color: #888; text-align: center;">Loading...</p>';
 
-    let { data: tickets, error } = await supabaseClient
+    // 1. Fetch all tickets
+    let { data: tickets, error: ticketsError } = await supabaseClient
         .from('tickets')
         .select('*')
         .order('created_at', { ascending: false });
 
-    if (error) {
-        feedContainer.innerHTML = `<p style="color: red; text-align: center;">Error loading database: ${error.message}</p>`;
+    if (ticketsError) {
+        feedContainer.innerHTML = `<p style="color: red; text-align: center;">Error loading tickets: ${ticketsError.message}</p>`;
         return;
+    }
+
+    // 2. Fetch all submissions
+    let { data: submissions, error: subError } = await supabaseClient
+        .from('submissions')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+    if (subError) {
+        console.error("Error loading submissions:", subError);
+        submissions = []; // Fallback to empty array if this fails
     }
 
     if (tickets.length === 0) {
@@ -61,7 +73,30 @@ async function fetchTickets() {
     }
 
     feedContainer.innerHTML = '';
+    
+    // 3. Loop through tickets and build the HTML
     tickets.forEach(ticket => {
+        // Find all artwork submitted for this specific ticket
+        const ticketSubmissions = submissions.filter(sub => sub.ticket_id === ticket.id);
+        
+        // Build a scrollable gallery if there are submissions
+        let submissionsHtml = '';
+        if (ticketSubmissions.length > 0) {
+            submissionsHtml = `
+                <div style="padding: 15px; border-top: 1px solid #f9eeef; background: #fffafb;">
+                    <h4 style="font-size: 13px; color: #d1496b; margin-bottom: 10px;">Submitted Artwork (${ticketSubmissions.length}):</h4>
+                    <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px;">
+                        ${ticketSubmissions.map(sub => `
+                            <div style="min-width: 100px; text-align: center;">
+                                <img src="${sub.artwork_url}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #ffd1dc;" alt="Art">
+                                <span style="font-size: 11px; color: #666; display: block; margin-top: 5px;">${sub.artist_name}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
         const card = document.createElement('div');
         card.className = 'ticket-card';
         card.innerHTML = `
@@ -77,10 +112,14 @@ async function fetchTickets() {
                 <p>${ticket.description}</p>
             </div>
             ${ticket.reference_image_url ? `<div class="card-image-box"><img src="${ticket.reference_image_url}" /></div>` : ''}
+            
+            <!-- Insert the submissions gallery here -->
+            ${submissionsHtml}
+
             <div class="card-actions">
                 <span style="font-size: 13px; color: #888;">Open Request</span>
-                <button class="btn-join" onclick="openSubmitModal('${ticket.id}')">Submit Art ✏️</button>            
-                </div>
+                <button class="btn-join" onclick="openSubmitModal('${ticket.id}')">Submit Art ✏️</button>
+            </div>
         `;
         feedContainer.appendChild(card);
     });
