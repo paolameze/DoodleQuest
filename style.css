@@ -1,0 +1,229 @@
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+    font-family: 'Poppins', sans-serif, system-ui; 
+}
+
+body { 
+    background-color: #fff0f3; 
+    background-image: 
+        radial-gradient(#ffb6c1 20%, transparent 21%), 
+        radial-gradient(#ffb6c1 20%, transparent 21%);
+    background-size: 40px 40px;
+    background-position: 0 0, 20px 20px;
+    display: flex; 
+    min-height: 100vh; 
+}
+
+/* Left Sidebar - Width 320px */
+aside.sidebar {
+    width: 320px; 
+    background-color: #ffb6c1; 
+    border-right: 2px solid #ff9ebb;
+    padding: 40px 25px; 
+    display: flex; 
+    flex-direction: column; 
+    position: fixed; 
+    height: 100vh; 
+    top: 0; 
+    left: 0;
+    z-index: 10;
+}
+
+.logo-container {
+    text-align: left;
+    margin-bottom: 40px;
+}
+
+.logo-img {
+    max-width: 270px; 
+    height: auto;
+}
+
+.nav-menu { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+/* Larger Navigation Buttons & Text with Custom Icons */
+.nav-item {
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    padding: 16px 22px; 
+    background: transparent;
+    border: none; 
+    border-radius: 14px; 
+    font-size: 21px; 
+    font-weight: 600; 
+    color: white; 
+    cursor: pointer; 
+    transition: background 0.2s; 
+    text-align: left;
+    width: 100%;
+}
+
+.nav-item:hover, .nav-item.active { 
+    background-color: rgba(255, 255, 255, 0.4); 
+    color: #d1496b; 
+}
+
+.nav-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Main Content Container - Shifted right to match wider sidebar */
+main.main-content { 
+    margin-left: 320px; 
+    flex: 1; 
+    display: flex; 
+    justify-content: center; 
+    padding: 40px 20px; 
+}
+
+.content-wrapper { 
+    width: 100%; 
+    max-width: 500px; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 25px; 
+}
+
+.view-section { 
+    display: none; 
+    flex-direction: column; 
+    gap: 20px; 
+}
+
+.view-section.active { 
+    display: flex; 
+}
+
+/* Ticket Card Styling */
+.ticket-card { 
+    background: white; 
+    border-radius: 16px; 
+    box-shadow: 0 4px 15px rgba(255, 150, 175, 0.2); 
+    overflow: hidden; 
+    border: 2px solid #ffd1dc; 
+}
+
+.card-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 15px; 
+    border-bottom: 1px solid #f9eeef; 
+}
+
+.user-info { 
+    display: flex; 
+    align-items: center; 
+    gap: 10px; 
+    font-weight: 600; 
+    color: #d1496b; 
+}
+
+/* Custom Avatar Image Styling */
+.avatar-img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ff9ebb;
+}
+
+.difficulty-badge { 
+    font-size: 12px; 
+    font-weight: bold; 
+    padding: 4px 10px; 
+    border-radius: 20px; 
+    background-color: #ffe5ea; 
+    color: #d1496b; 
+}
+
+.card-body { 
+    padding: 15px; 
+    color: #555; 
+    font-size: 14px; 
+    line-height: 1.5; 
+}
+
+.card-image-box img { 
+    width: 100%; 
+    max-height: 300px; 
+    object-fit: cover; 
+    border-top: 1px solid #f9eeef; 
+    border-bottom: 1px solid #f9eeef; 
+}
+
+.card-actions { 
+    padding: 15px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+
+.btn-join { 
+    background-color: #ff7597; 
+    color: white; 
+    border: none; 
+    padding: 8px 16px; 
+    border-radius: 20px; 
+    font-weight: 600; 
+    cursor: pointer; 
+}
+
+.btn-join:hover { 
+    background-color: #e05e7e; 
+}
+
+/* Create Form & Profile Styling */
+.create-form { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 16px; 
+    border: 2px solid #ffd1dc; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+
+.create-form h2 { 
+    color: #d1496b; 
+    margin-bottom: 5px; 
+}
+
+.create-form label { 
+    font-size: 14px; 
+    font-weight: 600; 
+    color: #666; 
+}
+
+.create-form input, 
+.create-form textarea, 
+.create-form select {
+    width: 100%; 
+    padding: 10px; 
+    border: 1px solid #ffd1dc; 
+    border-radius: 8px; 
+    font-size: 14px; 
+    outline: none; 
+    background: #fff8fa;
+}
+
+.create-form button { 
+    background-color: #ff7597; 
+    color: white; 
+    border: none; 
+    padding: 12px; 
+    border-radius: 8px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    font-size: 16px; 
+}
