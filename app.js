@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('btn-profile').classList.add('active');
             }
         }
-    }
+    });
 
         // 1. Fetch Tickets from Supabase Database
         async function fetchTickets() {
