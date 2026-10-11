@@ -205,6 +205,25 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- SUBMISSION MODAL -->
+    <div id="submitModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 182, 193, 0.8); justify-content: center; align-items: center; z-index: 1000;">
+        <div class="create-form" style="width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <h2>Submit Your Artwork</h2>
+            <p style="font-size: 13px; color: #777;">Upload your completed drawing for this ticket!</p>
+            
+            <input type="hidden" id="submitTicketId">
+            
+            <label>Your Artist Name</label>
+            <input type="text" id="submitArtistName" placeholder="@yourname" value="@lumina">
+
+            <label>Artwork File</label>
+            <input type="file" id="submitFile" accept="image/*">
+
+            <button onclick="submitArtwork()">Upload Masterpiece ✨</button>
+            <button onclick="closeSubmitModal()" style="background-color: #ffd1dc; color: #d1496b; margin-top: 5px;">Cancel</button>
+        </div>
+    </div>
+    
     <script src="app.js?v=2"></script>
 </body>
 </html>
