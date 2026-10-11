@@ -96,6 +96,7 @@ async function fetchTickets() {
 
         const card = document.createElement('div');
         card.className = 'ticket-card';
+        card.style.marginBottom = '25px';
         card.innerHTML = `
             <div class="card-header">
                 <div class="user-info">
