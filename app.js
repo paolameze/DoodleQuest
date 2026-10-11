@@ -79,8 +79,8 @@ async function fetchTickets() {
             ${ticket.reference_image_url ? `<div class="card-image-box"><img src="${ticket.reference_image_url}" /></div>` : ''}
             <div class="card-actions">
                 <span style="font-size: 13px; color: #888;">Open Request</span>
-                <button class="btn-join" onclick="alert('Joined ticket: ${ticket.title}!')">Join Ticket ✏️</button>
-            </div>
+                <button class="btn-join" onclick="openSubmitModal('${ticket.id}')">Submit Art ✏️</button>            
+                </div>
         `;
         feedContainer.appendChild(card);
     });
@@ -164,5 +164,58 @@ async function publishTicket() {
         document.getElementById('ticketDesc').value = '';
         document.getElementById('ticketFile').value = '';
         switchView('feed');
+    }
+}
+
+// 5. SUBMISSION LOGIC
+function openSubmitModal(ticketId) {
+    document.getElementById('submitTicketId').value = ticketId;
+    document.getElementById('submitModal').style.display = 'flex';
+}
+
+function closeSubmitModal() {
+    document.getElementById('submitModal').style.display = 'none';
+    document.getElementById('submitFile').value = '';
+}
+
+async function submitArtwork() {
+    const ticketId = document.getElementById('submitTicketId').value;
+    const artistName = document.getElementById('submitArtistName').value;
+    const fileInput = document.getElementById('submitFile').files[0];
+
+    if (!fileInput) {
+        alert('Please select an artwork file to upload!');
+        return;
+    }
+
+    const fileName = `submission_${Date.now()}_${fileInput.name}`;
+    
+    // 1. Upload to the drawings bucket
+    const { data: uploadData, error: uploadError } = await supabaseClient.storage
+        .from('drawings')
+        .upload(fileName, fileInput);
+
+    if (uploadError) {
+        alert('Error uploading artwork: ' + uploadError.message);
+        return;
+    }
+
+    // 2. Get the public URL
+    const { data: publicUrlData } = supabaseClient.storage
+        .from('drawings')
+        .getPublicUrl(fileName);
+
+    const artworkUrl = publicUrlData.publicUrl;
+
+    // 3. Save to the submissions table
+    const { error: insertError } = await supabaseClient
+        .from('submissions')
+        .insert([{ ticket_id: ticketId, artist_name: artistName, artwork_url: artworkUrl }]);
+
+    if (insertError) {
+        alert('Error saving submission to database: ' + insertError.message);
+    } else {
+        alert('Artwork submitted successfully! 🎨');
+        closeSubmitModal();
     }
 }
