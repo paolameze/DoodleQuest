@@ -6,12 +6,12 @@
 }
 
 body { 
-    background-color: #fff0f3; 
+    background-color: #fff0f3 !important; 
     background-image: 
         radial-gradient(#d1496b 15%, transparent 16%), 
-        radial-gradient(#d1496b 15%, transparent 16%);
-    background-size: 40px 40px;
-    background-position: 0 0, 20px 20px;
+        radial-gradient(#d1496b 15%, transparent 16%) !important;
+    background-size: 40px 40px !important;
+    background-position: 0 0, 20px 20px !important;
     display: flex; 
     min-height: 100vh; 
 }
