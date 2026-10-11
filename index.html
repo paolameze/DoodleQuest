@@ -7,33 +7,69 @@
     <!-- Include Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif, system-ui; }
+        body { background-color: #fff0f3; display: flex; min-height: 100vh; }
+
+        /* Left Sidebar - Width 320px */
+        aside.sidebar {
+            width: 320px; 
+            background-color: #ffb6c1; 
+            border-right: 2px solid #ff9ebb;
+            padding: 40px 25px; 
+            display: flex; 
+            flex-direction: column; 
+            position: fixed; 
+            height: 100vh; 
+            top: 0; 
+            left: 0;
+        }
+
         .logo-container {
-            text-align: center;
+            text-align: left;
             margin-bottom: 40px;
         }
         
         .logo-img {
-            max-width: 250px; /* This makes sure your logo isn't too huge */
+            max-width: 270px; 
             height: auto;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif, system-ui; }
-        body { background-color: #fff0f3; display: flex; min-height: 100vh; }
 
-        /* Left Sidebar */
-        aside.sidebar {
-            width: 260px; background-color: #ffb6c1; border-right: 2px solid #ff9ebb;
-            padding: 30px 20px; display: flex; flex-direction: column; position: fixed; height: 100vh; top: 0; left: 0;
-        }
-        .logo { font-size: 28px; font-weight: bold; color: white; text-shadow: 2px 2px 0px #ff7597; margin-bottom: 40px; text-align: center; }
         .nav-menu { display: flex; flex-direction: column; gap: 15px; }
+        
+        /* Larger Navigation Buttons & Text with Custom Icons */
         .nav-item {
-            display: flex; align-items: center; gap: 15px; padding: 12px 18px; background: transparent;
-            border: none; border-radius: 12px; font-size: 18px; font-weight: 600; color: white; cursor: pointer; transition: background 0.2s; text-align: left;
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+            padding: 16px 22px; 
+            background: transparent;
+            border: none; 
+            border-radius: 14px; 
+            font-size: 21px; 
+            font-weight: 600; 
+            color: white; 
+            cursor: pointer; 
+            transition: background 0.2s; 
+            text-align: left;
+            width: 100%;
         }
         .nav-item:hover, .nav-item.active { background-color: rgba(255, 255, 255, 0.4); color: #d1496b; }
 
-        /* Main Content Container */
-        main.main-content { margin-left: 260px; flex: 1; display: flex; justify-content: center; padding: 40px 20px; }
+        .nav-icon {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+            pointer-events: none; /* Prevents image from blocking clicks */
+        }
+
+        /* Main Content Container - Shifted right to match wider sidebar */
+        main.main-content { 
+            margin-left: 320px; 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            padding: 40px 20px; 
+        }
         .content-wrapper { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 25px; }
 
         .view-section { display: none; flex-direction: column; gap: 20px; }
@@ -43,7 +79,16 @@
         .ticket-card { background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(255, 150, 175, 0.2); overflow: hidden; border: 2px solid #ffd1dc; }
         .card-header { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #f9eeef; }
         .user-info { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #d1496b; }
-        .avatar-placeholder { width: 35px; height: 35px; background-color: #ffb6c1; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; }
+        
+        /* Custom Avatar Image Styling */
+        .avatar-img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #ff9ebb;
+        }
+
         .difficulty-badge { font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; background-color: #ffe5ea; color: #d1496b; }
         .card-body { padding: 15px; color: #555; font-size: 14px; line-height: 1.5; }
         .card-image-box img { width: 100%; max-height: 300px; object-fit: cover; border-top: 1px solid #f9eeef; border-bottom: 1px solid #f9eeef; }
@@ -51,7 +96,7 @@
         .btn-join { background-color: #ff7597; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; }
         .btn-join:hover { background-color: #e05e7e; }
 
-        /* Create Form Styling */
+        /* Create Form & Profile Styling */
         .create-form { background: white; padding: 25px; border-radius: 16px; border: 2px solid #ffd1dc; display: flex; flex-direction: column; gap: 15px; }
         .create-form h2 { color: #d1496b; margin-bottom: 5px; }
         .create-form label { font-size: 14px; font-weight: 600; color: #666; }
@@ -69,9 +114,18 @@
             <img src="logo.png" alt="DoodleQuest Logo" class="logo-img">
         </div>
         <div class="nav-menu">
-            <button class="nav-item active" onclick="switchView('feed')">🏠 Feed</button>
-            <button class="nav-item" onclick="switchView('tickets')">✏️ Tickets</button>
-            <button class="nav-item" onclick="switchView('create')">➕ Create</button>
+            <button class="nav-item active" id="btn-feed" onclick="switchView('feed')">
+                <img src="home-icon.png" alt="Feed" class="nav-icon"> Feed
+            </button>
+            <button class="nav-item" id="btn-tickets" onclick="switchView('tickets')">
+                <img src="tickets-icon.png" alt="Tickets" class="nav-icon"> Tickets
+            </button>
+            <button class="nav-item" id="btn-create" onclick="switchView('create')">
+                <img src="create-icon.png" alt="Create" class="nav-icon"> Create
+            </button>
+            <button class="nav-item" id="btn-profile" onclick="switchView('profile')">
+                <img src="profile-icon.png" alt="Profile" class="nav-icon"> Profile
+            </button>
         </div>
     </aside>
 
@@ -125,6 +179,28 @@
                 </div>
             </div>
 
+            <!-- VIEW 4: PROFILE -->
+            <div id="profileView" class="view-section">
+                <div class="create-form" style="text-align: center; align-items: center;">
+                    <img src="avatar.png" alt="Profile Picture" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid #ff9ebb; margin-bottom: 10px;">
+                    <h2 style="color: #d1496b;">@lumina</h2>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">Digital Artist ✨</p>
+                    
+                    <div style="display: flex; gap: 20px; width: 100%; justify-content: center; border-top: 1px solid #ffd1dc; border-bottom: 1px solid #ffd1dc; padding: 15px 0; margin-bottom: 15px;">
+                        <div>
+                            <strong style="display: block; color: #d1496b; font-size: 18px;">12</strong>
+                            <span style="font-size: 12px; color: #888;">Tickets Posted</span>
+                        </div>
+                        <div>
+                            <strong style="display: block; color: #d1496b; font-size: 18px;">5</strong>
+                            <span style="font-size: 12px; color: #888;">Completed</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-join" style="width: 100%; padding: 10px;" onclick="alert('Profile settings coming soon!')">Edit Profile ⚙️</button>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -136,21 +212,27 @@
         
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Switch Tabs Logic
+        // Switch Tabs Logic & Content Loader
         function switchView(viewName) {
+            // Hide all views and remove active class from all buttons
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
+            // Activate the selected view
             if (viewName === 'feed') {
                 document.getElementById('feedView').classList.add('active');
-                event.currentTarget.classList.add('active');
+                document.getElementById('btn-feed').classList.add('active');
                 fetchTickets();
             } else if (viewName === 'tickets') {
                 document.getElementById('ticketsView').classList.add('active');
-                event.currentTarget.classList.add('active');
+                document.getElementById('btn-tickets').classList.add('active');
+                fetchMyTickets();
             } else if (viewName === 'create') {
                 document.getElementById('createView').classList.add('active');
-                event.currentTarget.classList.add('active');
+                document.getElementById('btn-create').classList.add('active');
+            } else if (viewName === 'profile') {
+                document.getElementById('profileView').classList.add('active');
+                document.getElementById('btn-profile').classList.add('active');
             }
         }
 
@@ -181,7 +263,7 @@
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="user-info">
-                            <div class="avatar-placeholder">🎨</div>
+                            <img src="avatar.png" alt="Avatar" class="avatar-img">
                             <span>${ticket.creator_name || '@user'}</span>
                         </div>
                         <span class="difficulty-badge">${ticket.difficulty || 'Easy'}</span>
@@ -200,13 +282,48 @@
             });
         }
 
+        // Dedicated function to load content for the "Tickets" page
+        async function fetchMyTickets() {
+            const joinedContainer = document.getElementById('joinedTicketsFeed');
+            joinedContainer.innerHTML = '<p style="color: #888;">Loading your tickets...</p>';
+
+            let { data: myTickets, error } = await supabase
+                .from('tickets')
+                .select('*')
+                .eq('creator_name', document.getElementById('creatorName').value);
+
+            if (error) {
+                joinedContainer.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                return;
+            }
+
+            if (!myTickets || myTickets.length === 0) {
+                joinedContainer.innerHTML = '<p style="color: #888;">You haven\'t created or joined any tickets yet!</p>';
+                return;
+            }
+
+            joinedContainer.innerHTML = '';
+            myTickets.forEach(ticket => {
+                const item = document.createElement('div');
+                item.className = 'ticket-card';
+                item.style.marginBottom = '15px';
+                item.innerHTML = `
+                    <div class="card-body">
+                        <h3 style="font-size: 15px; color: #d1496b;">${ticket.title}</h3>
+                        <p>${ticket.description}</p>
+                    </div>
+                `;
+                joinedContainer.appendChild(item);
+            });
+        }
+
         // 2. Publish Ticket and Upload Image to Supabase Storage
         async function publishTicket() {
             const creatorName = document.getElementById('creatorName').value;
             const title = document.getElementById('ticketTitle').value;
             const description = document.getElementById('ticketDesc').value;
             const difficulty = document.getElementById('ticketDifficulty').value;
-            const fileInput = document.getElementById('imageFile').files[0];
+            const fileInput = document.getElementById('ticketFile').files[0];
 
             if (!title || !description) {
                 alert('Please fill out the title and description!');
@@ -215,7 +332,6 @@
 
             let imageUrl = '';
 
-            // If an image file is selected, upload it to Supabase Storage bucket named 'drawings'
             if (fileInput) {
                 const fileName = `${Date.now()}_${fileInput.name}`;
                 const { data: uploadData, error: uploadError } = await supabase.storage
@@ -234,7 +350,6 @@
                 imageUrl = publicUrlData.publicUrl;
             }
 
-            // Insert the ticket data into the 'tickets' table
             const { error: insertError } = await supabase
                 .from('tickets')
                 .insert([{ creator_name: creatorName, title, description, difficulty, reference_image_url: imageUrl }]);
@@ -245,7 +360,7 @@
                 alert('Ticket published live to Supabase successfully! 🎉');
                 document.getElementById('ticketTitle').value = '';
                 document.getElementById('ticketDesc').value = '';
-                document.getElementById('imageFile').value = '';
+                document.getElementById('ticketFile').value = '';
                 switchView('feed');
             }
         }
