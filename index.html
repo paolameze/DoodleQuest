@@ -7,6 +7,15 @@
     <!-- Include Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo-img {
+            max-width: 180px; /* This makes sure your logo isn't too huge */
+            height: auto;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif, system-ui; }
         body { background-color: #fff0f3; display: flex; min-height: 100vh; }
 
@@ -56,7 +65,9 @@
 
     <!-- LEFT SIDEBAR -->
     <aside class="sidebar">
-        <h1 class="logo">DoodleQuest</h1>
+        <div class="logo-container">
+            <img src="logo.png" alt="DoodleQuest Logo" class="logo-img">
+        </div>
         <div class="nav-menu">
             <button class="nav-item active" onclick="switchView('feed')">🏠 Feed</button>
             <button class="nav-item" onclick="switchView('tickets')">✏️ Tickets</button>
